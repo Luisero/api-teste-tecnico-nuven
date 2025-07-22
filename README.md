@@ -51,8 +51,8 @@ Siga os passos abaixo para configurar e rodar a aplicação em seu ambiente loca
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
-    cd seu-repositorio
+    git clone git@github.com:Luisero/api-teste-tecnico-nuven.git
+    cd api-teste-tecnico-nuven
     ```
 
 2.  **Configure as Variáveis de Ambiente:**
