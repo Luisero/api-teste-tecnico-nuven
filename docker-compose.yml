@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  postgres_challenge:
+    image: postgres:14-alpine
+    container_name: postgres_challenge_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pg_challenge_data:/var/lib/postgresql/data
+
+  api_challenge:
+    build: .
+    container_name: api_challenge
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres_challenge
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run dev
+
+volumes:
+  pg_challenge_data:
+    driver: local
