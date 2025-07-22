@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: API - Desafio Técnico Backend
+  version: '1.0.0'
+  description: API para ingestão e gerenciamento de documentos, autenticação e buscas.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Auth
+    description: Autenticação de usuários
+  - name: Datasets
+    description: Gerenciamento de datasets e upload
+  - name: Records
+    description: Consulta e busca em registros
+  - name: Queries
+    description: Simulação de buscas com IA
+
+paths:
+  # Auth Routes
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Registra um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '201':
+          description: Usuário criado
+        '409':
+          description: Email já existe
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Autentica um usuário e retorna um token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login bem-sucedido
+        '401':
+          description: Credenciais inválidas
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Retorna as informações do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Informações do usuário
+        '401':
+          description: Não autorizado
+
+  # Datasets Routes
+  /datasets:
+    get:
+      tags: [Datasets]
+      summary: Lista todos os datasets do usuário autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de datasets
+        '401':
+          description: Não autorizado
+
+  /datasets/upload:
+    post:
+      tags: [Datasets]
+      summary: Faz upload de um arquivo (.csv ou .pdf)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Arquivo enviado com sucesso
+        '400':
+          description: Erro no upload
+        '401':
+          description: Não autorizado
+
+  /datasets/{id}/records:
+    get:
+      tags: [Datasets]
+      summary: Lista todos os registros de um dataset específico
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lista de registros
+        '401':
+          description: Não autorizado
+
+  # Records Routes
+  /records/search:
+    get:
+      tags: [Records]
+      summary: Busca textual por registros
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resultado da busca
+        '401':
+          description: Não autorizado
+
+  # Queries Routes
+  /queries:
+    get:
+      tags: [Queries]
+      summary: Lista o histórico de perguntas do usuário
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Histórico de perguntas
+        '401':
+          description: Não autorizado
+    post:
+      tags: [Queries]
+      summary: Submete uma pergunta para a IA Mock
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question, datasetId]
+              properties:
+                question:
+                  type: string
+                datasetId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Pergunta registrada com sucesso
+        '401':
+          description: Não autorizado
